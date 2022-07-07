@@ -7,6 +7,8 @@ db = SQLAlchemy()
 
 
 class Aggregate:
+    """Классовые методы обработки и создания БД"""
+
     @classmethod
     def convert_date(cls, data: dict) -> dict:
         data_changed = {}
@@ -40,7 +42,6 @@ class User(db.Model, Aggregate):
     email = db.Column(db.String)
     role = db.Column(db.String)
     phone = db.Column(db.String)
-
 
     def __repr__(self) -> str:
         return f"Line {self.id} from json file was created"
@@ -77,6 +78,7 @@ class Order(db.Model, Aggregate):
         return f"Line {self.id} from json file was created"
 
     def instance_to_dict(self):
+        """Сериализация данных"""
         return {
                 'id'         : self.id,
                 'name'       : self.name,
@@ -105,6 +107,7 @@ class Offer(db.Model, Aggregate):
         return f'Line {self.id} from json file was created'
 
     def instance_to_dict(self):
+        """Сериализация данных"""
         return {
                 'id'         : self.id,
                 'order_id'   : self.order_id,

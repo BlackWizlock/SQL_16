@@ -2,8 +2,13 @@ from model import db, User, Order, Offer
 from view import app
 from flask import request, jsonify, redirect
 
+"""
+Сервисный слой бизнес-логики
+"""
+
 
 def fill_databases():
+    """заполнение инстантами БД"""
     with db.session.begin():
         users = User.create_database(app.config.get('USERS'))
         orders = Order.create_database(app.config.get('ORDERS'))
@@ -14,14 +19,17 @@ def fill_databases():
 
 
 def drop_databases():
+    """сброс таблиц БД"""
     db.drop_all()
 
 
 def create_database():
+    """создание БД по коммиту"""
     db.create_all()
 
 
 def users_all(method: str = "GET"):
+    """Отработка вызова эндпоинта дефолтный метод ГЕТ"""
     if method == 'POST':
         with db.session.begin():
             user = User(**request.json)
@@ -34,6 +42,7 @@ def users_all(method: str = "GET"):
 
 
 def users_id(idx: int, method: str = "GET"):
+    """Отработка вызова эндпоинта дефолтный метод ГЕТ"""
     if method == 'PUT':
         data = request.json
         with db.session.begin():
@@ -50,6 +59,7 @@ def users_id(idx: int, method: str = "GET"):
 
 
 def orders_all(method: str = "GET"):
+    """Отработка вызова эндпоинта дефолтный метод ГЕТ"""
     if method == 'POST':
         with db.session.begin():
             data = request.json
@@ -64,6 +74,7 @@ def orders_all(method: str = "GET"):
 
 
 def orders_by_id(idx, method: str = "GET"):
+    """Отработка вызова эндпоинта дефолтный метод ГЕТ"""
     if method == 'PUT':
         data = request.json
         data_changed = Order.convert_date(data)
@@ -83,6 +94,7 @@ def orders_by_id(idx, method: str = "GET"):
 
 
 def offers_all(method: str = "GET"):
+    """Отработка вызова эндпоинта дефолтный метод ГЕТ"""
     if method == 'POST':
         with db.session.begin():
             offer = Offer(**request.json)
@@ -95,6 +107,7 @@ def offers_all(method: str = "GET"):
 
 
 def offers_by_id(idx, method: str = "GET"):
+    """Отработка вызова эндпоинта дефолтный метод ГЕТ"""
     if method == 'PUT':
         data = request.json
         with db.session.begin():
