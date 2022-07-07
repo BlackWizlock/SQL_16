@@ -1,4 +1,4 @@
-from flask import Flask, json, jsonify, render_template, request, redirect
+from flask import Flask, jsonify, render_template, request, redirect
 from model import db, User, Order, Offer
 
 app = Flask(__name__)

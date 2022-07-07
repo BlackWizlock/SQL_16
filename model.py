@@ -1,5 +1,3 @@
-import string
-
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship
 from flask import json
@@ -29,7 +27,6 @@ class Aggregate:
         for item in data:
             new_item = cls.convert_date(item)
             data_to_be_added.append(cls(**new_item))
-        print(data_to_be_added)
         return data_to_be_added
 
 
