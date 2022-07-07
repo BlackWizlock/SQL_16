@@ -41,7 +41,6 @@ class User(db.Model, Aggregate):
     role = db.Column(db.String)
     phone = db.Column(db.String)
 
-    orders = relationship('Order', backref='orders')
 
     def __repr__(self) -> str:
         return f"Line {self.id} from json file was created"
@@ -69,9 +68,10 @@ class Order(db.Model, Aggregate):
     address = db.Column(db.String)
     price = db.Column(db.Integer)
     customer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    executor_id = db.Column(db.Integer)
+    executor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    user = relationship('User', backref='user')
+    user = relationship('User', foreign_keys=[customer_id])
+    executor = relationship('User', foreign_keys=[executor_id])
 
     def __repr__(self):
         return f"Line {self.id} from json file was created"
@@ -97,6 +97,9 @@ class Offer(db.Model, Aggregate):
 
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'))
     executor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    order = relationship('Order', foreign_keys=[order_id])
+    user = relationship('User', foreign_keys=[executor_id])
 
     def __repr__(self) -> str:
         return f'Line {self.id} from json file was created'

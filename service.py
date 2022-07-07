@@ -1,18 +1,9 @@
-from flask import Flask, jsonify, render_template, request, redirect
 from model import db, User, Order, Offer
-
-app = Flask(__name__)
-app.config.from_pyfile('config.py')
-db.init_app(app)
+from view import app
+from flask import request, jsonify, redirect
 
 
-@app.route('/')
-def index(): return render_template('index.html')
-
-
-# Основной аггрегатор БД - создание таблиц, удаление таблиц, наполнение данными
-@app.route('/add')
-def db_index():
+def fill_databases():
     with db.session.begin():
         users = User.create_database(app.config.get('USERS'))
         orders = Order.create_database(app.config.get('ORDERS'))
@@ -20,30 +11,18 @@ def db_index():
         db.session.add_all(users)
         db.session.add_all(orders)
         db.session.add_all(offers)
-    message = "Данные занесены в БД"
-    return render_template('done.html', message=message)
 
 
-@app.route('/create_db', methods=['GET'])
-def db_create():
-    db.create_all()
-    message = "Таблицы БД созданы"
-    return render_template('done.html', message=message)
-
-
-@app.route('/drop_db', methods=['GET'])
-def db_drop():
+def drop_databases():
     db.drop_all()
-    message = "Сброс БД выполнен"
-    return render_template('done.html', message=message)
 
 
-# --------------------------------
+def create_database():
+    db.create_all()
 
 
-@app.route('/users', methods=['GET', 'POST'])
-def users_all():
-    if request.method == 'POST':
+def users_all(method: str = "GET"):
+    if method == 'POST':
         with db.session.begin():
             user = User(**request.json)
             db.session.add(user)
@@ -54,15 +33,14 @@ def users_all():
         return jsonify(users_json)
 
 
-@app.route('/users/<int:idx>', methods=['GET', 'PUT', 'DELETE'])
-def user_id(idx: int):
-    if request.method == 'PUT':
+def users_id(idx: int, method: str = "GET"):
+    if method == 'PUT':
         data = request.json
         with db.session.begin():
             user = User.query.filter(User.id == idx).one()
             user.update(data)
         return jsonify(user.instance_to_dict())
-    elif request.method == 'DELETE':
+    elif method == 'DELETE':
         with db.session.begin():
             User.query.filter(User.id == idx).delete()
         return redirect('/users', 302)
@@ -71,9 +49,8 @@ def user_id(idx: int):
         return jsonify(user.instance_to_dict())
 
 
-@app.route("/orders", methods=['GET', 'POST'])
-def orders_all():
-    if request.method == 'POST':
+def orders_all(method: str = "GET"):
+    if method == 'POST':
         with db.session.begin():
             data = request.json
             data_changed = Order.convert_date(data)
@@ -86,9 +63,8 @@ def orders_all():
         return jsonify(orders_json)
 
 
-@app.route("/orders/<int:idx>", methods=['GET', 'PUT', 'DELETE'])
-def order_by_id(idx):
-    if request.method == 'PUT':
+def orders_by_id(idx, method: str = "GET"):
+    if method == 'PUT':
         data = request.json
         data_changed = Order.convert_date(data)
         with db.session.begin():
@@ -96,7 +72,7 @@ def order_by_id(idx):
             order.update(data_changed)
         return jsonify(order.instance_to_dict())
 
-    elif request.method == 'DELETE':
+    elif method == 'DELETE':
         with db.session.begin():
             Order.query.filter(Order.id == idx).delete()
         return redirect('/orders', 302)
@@ -106,9 +82,8 @@ def order_by_id(idx):
         return jsonify(order.instance_to_dict())
 
 
-@app.route("/offers", methods=['GET', 'POST'])
-def offers_all():
-    if request.method == 'POST':
+def offers_all(method: str = "GET"):
+    if method == 'POST':
         with db.session.begin():
             offer = Offer(**request.json)
             db.session.add(offer)
@@ -119,16 +94,15 @@ def offers_all():
         return jsonify(offers_json)
 
 
-@app.route("/offers/<int:idx>", methods=['GET', 'PUT', 'DELETE'])
-def offer_by_id(idx):
-    if request.method == 'PUT':
+def offers_by_id(idx, method: str = "GET"):
+    if method == 'PUT':
         data = request.json
         with db.session.begin():
             offer = Offer.query.filter(Offer.id == idx).one()
             offer.update(data)
         return jsonify(offer.instance_to_dict())
 
-    elif request.method == 'DELETE':
+    elif method == 'DELETE':
         with db.session.begin():
             Offer.query.filter(Order.id == idx).delete()
         return redirect('/offers', 302)
@@ -136,7 +110,3 @@ def offer_by_id(idx):
     else:
         offer = Offer.query.filter(Offer.id == idx).one()
         return jsonify(offer.instance_to_dict())
-
-
-if __name__ == '__main__':
-    app.run()
